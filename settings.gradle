@@ -1,3 +1,4 @@
 rootProject.name = '2021-03-otus-java-chernenko'
 include 'hw01-gradle'
+include 'hw04-generics'
 
