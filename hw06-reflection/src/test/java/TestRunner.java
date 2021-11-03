@@ -14,22 +14,26 @@ public class TestRunner {
 
         int successTests = 0, failedTests = 0;
 
-        for(Method method : GetMethodsByAnnotation(clazz, Test.class)) {
+        for(Method method : getMethodsByAnnotation(clazz, Test.class)) {
             System.out.println("TEST: " + method.getName());
             Object clazzObject = clazz.getDeclaredConstructor().newInstance();
+            boolean failed = false;
 
-            for(Method methodBefore : GetMethodsByAnnotation(clazz, Before.class)) {
-                InvokeMethod(methodBefore, clazzObject);
+            if(runMethods(getMethodsByAnnotation(clazz, Before.class), clazzObject)) {
+                if (!invokeMethod(method, clazzObject))
+                    failed = true;
+            }
+            else {
+                failed = true;
             }
 
-            if(InvokeMethod(method, clazzObject))
+            if(!runMethods(getMethodsByAnnotation(clazz, Before.class), clazzObject))
+                failed = true;
+
+            if(!failed)
                 successTests++;
             else
                 failedTests++;
-
-            for(Method methodAfter : GetMethodsByAnnotation(clazz, After.class)) {
-                InvokeMethod(methodAfter, clazzObject);
-            }
         }
 
         System.out.println("-----RESULTS-----");
@@ -38,7 +42,15 @@ public class TestRunner {
         System.out.println("ALL: " + (successTests + failedTests));
     }
 
-    private static List<Method> GetMethodsByAnnotation(Class clazz, Class annotaton) {
+    private static boolean runMethods(List<Method> methods, Object clazzObject) {
+        for(Method methodAfter : methods) {
+            if(!invokeMethod(methodAfter, clazzObject))
+                return false;
+        }
+        return true;
+    }
+
+    private static List<Method> getMethodsByAnnotation(Class clazz, Class annotaton) {
         Method[] methods = clazz.getMethods();
         List<Method> result = new ArrayList<>();
         for(Method method : methods) {
@@ -48,7 +60,7 @@ public class TestRunner {
         return result;
     }
 
-    private static boolean InvokeMethod(Method method, Object object) {
+    private static boolean invokeMethod(Method method, Object object) {
         try {
             method.invoke(object);
             System.out.println(method.getName() + " OK");
