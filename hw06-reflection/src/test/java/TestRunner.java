@@ -27,7 +27,7 @@ public class TestRunner {
                 failed = true;
             }
 
-            if(!runMethods(getMethodsByAnnotation(clazz, Before.class), clazzObject))
+            if(!runMethods(getMethodsByAnnotation(clazz, After.class), clazzObject))
                 failed = true;
 
             if(!failed)
