@@ -64,8 +64,12 @@ public class GcDemo {
         String s = new String(new char[0]);
         for (int loopIdx = 0; loopIdx < loopCounter; loopIdx++) {
             array = new Object[objectArraySize];
+            // ДО
+            // Object[] array = new Object[objectArraySize];
             for (int idx = 0; idx < objectArraySize; idx++) {
                 array[idx] = s;
+                // ДО
+                // array[idx] = new String(new char[0]);
             }
             Thread.sleep(10); //Label_1
         }
