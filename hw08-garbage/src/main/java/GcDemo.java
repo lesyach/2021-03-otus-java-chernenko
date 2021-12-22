@@ -63,7 +63,7 @@ public class GcDemo {
         Object[] array;
         String s = new String(new char[0]);
         for (int loopIdx = 0; loopIdx < loopCounter; loopIdx++) {
-            array = new Object[objectArraySize];
+            array = new String[objectArraySize];
             // ДО
             // Object[] array = new Object[objectArraySize];
             for (int idx = 0; idx < objectArraySize; idx++) {
