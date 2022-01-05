@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class TestLoggingProxy {
-    public static TestLoggingInterface createInstance() {
+    public static TestLoggingInterface createInstance() throws NoSuchMethodException {
         InvocationHandler handler = new TestLoggingInvocationHandler(new TestLogging());
         return (TestLoggingInterface) Proxy.newProxyInstance(TestLoggingProxy.class.getClassLoader(),
                 new Class<?>[]{TestLoggingInterface.class}, handler);
@@ -16,23 +16,36 @@ public class TestLoggingProxy {
 
     static class TestLoggingInvocationHandler implements InvocationHandler {
         private final TestLoggingInterface testLoggingInterface;
+        private final List<Method> methods;
         private Logger logger = Logger.getLogger(TestLoggingInvocationHandler.class.getName());
 
-        TestLoggingInvocationHandler(TestLoggingInterface testLoggingInterface) {
+        TestLoggingInvocationHandler(TestLoggingInterface testLoggingInterface) throws NoSuchMethodException {
             this.testLoggingInterface = testLoggingInterface;
+            this.methods = getMethodsByAnnotation();
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        public Object invoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
             scanMethod(method, args);
             return method.invoke(testLoggingInterface, args);
         }
 
-        private void scanMethod(Method m, Object[] args) throws NoSuchMethodException {
-            if(TestLogging.class.getMethod(m.getName(), m.getParameterTypes()).isAnnotationPresent(Log.class))
+        private List<Method> getMethodsByAnnotation() throws NoSuchMethodException {
+            Method[] methodsInterface = TestLoggingInterface.class.getMethods();
+            List<Method> result = new ArrayList<>();
+            for(Method method : methodsInterface) {
+                if(TestLogging.class.getMethod(method.getName(), method.getParameterTypes())
+                        .isAnnotationPresent(Log.class))
+                    result.add(method);
+            }
+            return result;
+        }
+
+        private void scanMethod(Method m, Object[] args) {
+            if(methods.contains(m))
                 logger.info(String.format("executed method: %s, param: %s", m.getName(), Arrays.toString(args)));
-//            else
-//                logger.info("sorry not sorry");
+            else
+                logger.info("sorry not sorry");
         }
     }
 }
